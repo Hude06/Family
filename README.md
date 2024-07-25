@@ -1,5 +1,12 @@
 # Family Messaging
 
+## Getting Started
+
+- NPM install to install all tauri deps
+- Might have to cargo update, Cargo Clean, Cargo build
+- Npm run tauri dev to start Dev SERVER.
+- Takes a minuite on first boot
+
 DB Messaging Password - AJ7lJfJ0Keqs3P0J
 
 Back End Server
@@ -8,9 +15,9 @@ Back End Server
 - Spam filtering
 - And User can message a single User in your family
 - Multiple big family groups
-    - Family Diner plans
-        - Headers to show daily food plans
-    - Chores and laundry days
+  - Family Diner plans
+    - Headers to show daily food plans
+  - Chores and laundry days
 
 Capacitor JS Api
 
@@ -25,7 +32,7 @@ UI
 - Multiple groups in a family
 - Each group in a family has a footer and a header with updated details
 
-Core features 
+Core features
 
 - Messaging between individuals and groups
 - Shared calendars and events
@@ -36,7 +43,7 @@ Core features
 - Notifications when people leave bibles - House, School, YMCA
 - Secure critical document stores (wills, passports, licenses, etc)
 - Shared photo albums
-    - Photo albums based on locations and dates. Auto shared
+  - Photo albums based on locations and dates. Auto shared
 - Transient file sharing
 - Voting (where should we go for dinner)
 - Shared games
@@ -44,7 +51,7 @@ Core features
 - Users can request to other users. I can request “Can I go to YMCA at this time”
 - Screen sharing
 
-Attributes 
+Attributes
 
 - Fully secure
 - No single admin

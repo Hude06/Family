@@ -36,7 +36,7 @@ let logedInAsEmail = logedInAs.data.user.email;
 if (await logedInAs.data.user.email) {
   console.log("lOgin in");
   document.getElementById("logedin").innerHTML = logedInAsEmail;
-  document.getElementById("LOGIN").style.display = "none";
+  document.getElementById("LOGIN").innerHTML = "Log Out";
 }
 async function initGroups() {
   let groups = await fetchData();

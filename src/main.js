@@ -25,7 +25,6 @@ async function userStatus() {
 login.addEventListener("click", async function () {
   signInWithGithub();
   if (logedInAs.data.user.email) {
-    let logedInAsEmail = logedInAs.data.user.email;
     document.getElementById("logedin").innerHTML = logedInAsEmail;
     console.log("Setting email");
     document.getElementById("LOGIN").style.display = "none";
@@ -33,16 +32,15 @@ login.addEventListener("click", async function () {
 });
 
 let logedInAs = await userStatus();
+let logedInAsEmail = logedInAs.data.user.email;
 if (await logedInAs.data.user.email) {
   console.log("lOgin in");
-  let logedInAsEmail = logedInAs.data.user.email;
   document.getElementById("logedin").innerHTML = logedInAsEmail;
   document.getElementById("LOGIN").style.display = "none";
 }
 async function initGroups() {
   let groups = await fetchData();
   for (let i = 0; i < groups.length; i++) {
-    console.log("GGGG", groups[i].group);
     let group = document.createElement("button");
     group.textContent = groups[i].group;
     group.className = "group";

@@ -25,11 +25,11 @@ function initMap() {
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map);
 
-  // Optionally, add a marker
-  L.marker([51.5, -0.09])
-    .addTo(map)
-    .bindPopup("A marker in London.")
-    .openPopup();
+  // // Optionally, add a marker
+  // L.marker([51.5, -0.09])
+  //   .addTo(map)
+  //   .bindPopup("A marker in London.")
+  //   .openPopup();
 }
 initMap();
 function loop() {

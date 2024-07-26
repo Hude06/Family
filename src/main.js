@@ -9,7 +9,7 @@ let currentGroup = "home";
 const sidebar = document.querySelector(".sidebar");
 const newGroup = document.getElementById("New");
 async function signInWithGithub() {
-  const { data, error } = await supabase.auth.signInWithOAuth({
+  const { data, error } = await supabase2.auth.signInWithOAuth({
     provider: "github",
   });
 }

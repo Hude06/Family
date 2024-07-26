@@ -23,6 +23,11 @@ function loop() {
     familypage.style.display = "none";
     texting = true;
   }
+  if (texting) {
+    document.getElementById("input-area").style.display = "block";
+  } else {
+    document.getElementById("input-area").style.display = "none";
+  }
   requestAnimationFrame(loop);
 }
 loop();

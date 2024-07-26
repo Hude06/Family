@@ -9,7 +9,9 @@ let currentGroup = "home";
 const sidebar = document.querySelector(".sidebar");
 const newGroup = document.getElementById("New");
 const login = document.getElementById("LOGIN");
-
+async function signOut() {
+  const { error } = await supabase2.auth.signOut();
+}
 // Async function to check if a user is logged in
 async function userStatus() {
   const {
@@ -31,6 +33,7 @@ async function updateUIBasedOnLoginStatus() {
     document.getElementById("LOGIN").innerHTML = "Log Out";
   } else {
     console.log("LOGING IN OUR");
+    signOut();
     document.getElementById("logedin").innerHTML = "";
     document.getElementById("LOGIN").innerHTML = "Log In";
   }

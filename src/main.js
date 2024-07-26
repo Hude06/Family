@@ -8,15 +8,15 @@ const ul = document.getElementById("dataList");
 let currentGroup = "home";
 const sidebar = document.querySelector(".sidebar");
 const newGroup = document.getElementById("New");
-async function signInWithGithub() {
-  const { data, error } = await supabase2.auth.signInWithOAuth({
-    provider: "github",
-    options: {
-      redirectTo: `https://zzalsobevusrwlgyahaj.supabase.co/auth/v1/callback`,
-    },
-  });
-}
-signInWithGithub();
+// async function signInWithGithub() {
+//   const { data, error } = await supabase2.auth.signInWithOAuth({
+//     provider: "github",
+//     options: {
+//       redirectTo: `https://zzalsobevusrwlgyahaj.supabase.co/auth/v1/callback`,
+//     },
+//   });
+// }
+// signInWithGithub();
 async function initGroups() {
   let groups = await fetchData();
   for (let i = 0; i < groups.length; i++) {

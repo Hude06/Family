@@ -17,7 +17,7 @@ familyBUTT.addEventListener("click", async function () {
 });
 function initMap() {
   // Initialize the map and set its view to the desired geographical coordinates
-  var map = L.map("map").setView([51.505, -0.09], 13); // Coordinates for London with zoom level 13
+  var map = L.map("map").setView([33.72, -84.41], 13); // Coordinates for London with zoom level 13
 
   // Add a tile layer to the map (this is where the OSM data is fetched from)
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {

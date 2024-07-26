@@ -6,6 +6,7 @@ const supabase2 = createClient(
 let submit = document.getElementById("submit");
 const ul = document.getElementById("dataList");
 let currentGroup = "home";
+let logedIn = false;
 const sidebar = document.querySelector(".sidebar");
 const newGroup = document.getElementById("New");
 const login = document.getElementById("LOGIN");
@@ -17,19 +18,30 @@ async function signInWithGithub() {
     },
   });
 }
+async function signOut() {
+  const { error } = await supabase2.auth.signOut();
+}
 const user = null;
 async function userStatus() {
   const user = supabase2.auth.getUser();
   return user;
 }
-login.addEventListener("click", async function () {
-  signInWithGithub();
-  if (logedInAs.data.user.email) {
-    document.getElementById("logedin").innerHTML = logedInAsEmail;
-    console.log("Setting email");
-    document.getElementById("LOGIN").style.display = "none";
-  }
-});
+if (logedIn === false) {
+  login.addEventListener("click", async function () {
+    signInWithGithub();
+    if (logedInAs.data.user.email) {
+      logedIn = true;
+      document.getElementById("logedin").innerHTML = logedInAsEmail;
+      console.log("Setting email");
+    }
+  });
+} else {
+  login.addEventListener("click", async function () {
+    await signOut();
+    document.getElementById("logedin").innerHTML = "";
+    document.getElementById("LOGIN").innerHTML = "Log In";
+  });
+}
 
 let logedInAs = await userStatus();
 let logedInAsEmail = logedInAs.data.user.email;

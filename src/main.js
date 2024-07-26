@@ -33,7 +33,7 @@ async function updateUIBasedOnLoginStatus() {
     document.getElementById("LOGIN").innerHTML = "Log Out";
   } else {
     console.log("LOGING IN OUR");
-    signOut();
+    await signOut();
     document.getElementById("logedin").innerHTML = "";
     document.getElementById("LOGIN").innerHTML = "Log In";
   }

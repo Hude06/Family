@@ -38,6 +38,7 @@ if (logedIn === false) {
 } else {
   login.addEventListener("click", async function () {
     await signOut();
+    localStorage.clear();
     document.getElementById("logedin").innerHTML = "";
     document.getElementById("LOGIN").innerHTML = "Log In";
   });

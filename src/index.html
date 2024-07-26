@@ -11,6 +11,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="Family" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="main.js" type="module"></script>
   </head>
   <body>
@@ -24,7 +29,7 @@
         <button id="FAMILY">Where is my Family?</button>
       </div>
       <div class="Family_Tracking" id="Family_Tracking"></div>
-      <!-- Chat Area -->
+      <div id="map"></div>
       <div class="chat-area">
         <ul id="dataList" class="messages">
           <!-- Messages will be dynamically added here -->

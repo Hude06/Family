@@ -12,7 +12,7 @@ async function signInWithGithub() {
   const { data, error } = await supabase2.auth.signInWithOAuth({
     provider: "github",
     options: {
-      redirectTo: `https://judemakes.dev/family/src`,
+      redirectTo: `https://zzalsobevusrwlgyahaj.supabase.co/auth/v1/callback`,
     },
   });
 }

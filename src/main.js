@@ -8,7 +8,7 @@ const ul = document.getElementById("dataList");
 let currentGroup = "home";
 const sidebar = document.querySelector(".sidebar");
 const newGroup = document.getElementById("New");
-const login = document.getElementById("login");
+const login = document.getElementById("LOGIN");
 async function signInWithGithub() {
   const { data, error } = await supabase2.auth.signInWithOAuth({
     provider: "github",

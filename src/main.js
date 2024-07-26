@@ -16,7 +16,7 @@ async function signInWithGithub() {
 }
 const user = null;
 async function userStatus() {
-  const user = supabase.auth.getUser();
+  const user = supabase2.auth.getUser();
   console.log(user);
 }
 login.addEventListener("click", async function () {

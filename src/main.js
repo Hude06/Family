@@ -10,11 +10,12 @@ const sidebar = document.querySelector(".sidebar");
 const newGroup = document.getElementById("New");
 const login = document.getElementById("LOGIN");
 const familyBUTT = document.getElementById("FAMILY");
-const familypage = document.getElementsByClassName("Family_Tracking");
+const familypage = document.getElementById("Family_Tracking");
 let texting = true;
 familyBUTT.addEventListener("click", async function () {
   familypage.style.display = "block";
   currentGroup = "family";
+  console.log("Family Page");
   texting = false;
   await data_to_list();
 });
@@ -35,7 +36,6 @@ login.addEventListener("click", async function () {
   signInWithGithub();
   if (logedInAs.data.user.email) {
     document.getElementById("logedin").innerHTML = logedInAsEmail;
-    console.log("Setting email");
     document.getElementById("LOGIN").style.display = "none";
   }
 });
@@ -43,7 +43,6 @@ login.addEventListener("click", async function () {
 let logedInAs = await userStatus();
 let logedInAsEmail = logedInAs.data.user.email;
 if (await logedInAs.data.user.email) {
-  console.log("lOgin in");
   document.getElementById("logedin").innerHTML = logedInAsEmail;
 }
 async function initGroups() {
@@ -64,7 +63,6 @@ function checkButtons() {
     if (childElementsArray[i].tagName === "BUTTON") {
       if (childElementsArray[i].className === "group") {
         childElementsArray[i].addEventListener("click", async function () {
-          console.log("Button clicked", childElementsArray[i].textContent);
           currentGroup = childElementsArray[i].textContent;
           await data_to_list();
         });
@@ -102,11 +100,9 @@ async function data_to_list() {
   let data = await fetchData();
   ul.innerHTML = "";
   for (let i = 0; i < data.length; i++) {
-    console.log(data[i].group, currentGroup);
     if (data[i].group.toLowerCase() === currentGroup.toLowerCase()) {
       addListItem(data[i].message, data[i].user);
     } else {
-      console.log("Not in the group");
     }
   }
   setTimeout(data_to_list, 5000);

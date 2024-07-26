@@ -13,12 +13,19 @@ const familyBUTT = document.getElementById("FAMILY");
 const familypage = document.getElementById("Family_Tracking");
 let texting = true;
 familyBUTT.addEventListener("click", async function () {
-  familypage.style.display = "block";
   currentGroup = "family";
-  console.log("Family Page");
-  texting = false;
-  await data_to_list();
 });
+function loop() {
+  if (currentGroup === "family") {
+    familypage.style.display = "block";
+    texting = false;
+  } else {
+    familypage.style.display = "none";
+    texting = true;
+  }
+  requestAnimationFrame(loop);
+}
+loop();
 async function signInWithGithub() {
   const { data, error } = await supabase2.auth.signInWithOAuth({
     provider: "github",
@@ -115,6 +122,9 @@ submit.addEventListener("click", async function (event) {
     let user = logedInAsEmail;
     await insertMessage("messages", message, user);
     await data_to_list();
+  } else {
+    alert("You are not logged in");
+    alert("Texting is disabled");
   }
 });
 

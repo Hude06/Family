@@ -21,11 +21,12 @@ const user = null;
 async function userStatus() {
   const user = supabase2.auth.getUser();
   console.log(user);
+  return user;
 }
 login.addEventListener("click", async function () {
   signInWithGithub();
-  userStatus();
 });
+console.log(userStatus());
 async function initGroups() {
   let groups = await fetchData();
   for (let i = 0; i < groups.length; i++) {

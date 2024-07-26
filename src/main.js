@@ -34,16 +34,16 @@ function initMap() {
 initMap();
 function loop() {
   if (currentGroup === "family") {
-    familypage.style.display = "block";
+    familypage.style.display = "flex";
     texting = false;
   } else {
     familypage.style.display = "none";
     texting = true;
   }
   if (texting) {
-    document.getElementById("input-area").style.display = "block";
+    document.getElementById("chat-area").style.display = "flex";
   } else {
-    document.getElementById("input-area").style.display = "none";
+    document.getElementById("chat-area").style.display = "none";
   }
   requestAnimationFrame(loop);
 }

@@ -10,8 +10,10 @@ const sidebar = document.querySelector(".sidebar");
 const newGroup = document.getElementById("New");
 const login = document.getElementById("LOGIN");
 const familyBUTT = document.getElementById("FAMILY");
+const familypage = document.getElementsByClassName("Family_Tracking");
 let texting = true;
 familyBUTT.addEventListener("click", async function () {
+  familypage.style.display = "block";
   currentGroup = "family";
   texting = false;
   await data_to_list();

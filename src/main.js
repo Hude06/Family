@@ -26,7 +26,7 @@ login.addEventListener("click", async function () {
   signInWithGithub();
 });
 let logedInAs = await userStatus();
-console.log(logedInAs.data);
+console.log(logedInAs.data.user.email);
 async function initGroups() {
   let groups = await fetchData();
   for (let i = 0; i < groups.length; i++) {

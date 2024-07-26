@@ -12,9 +12,6 @@ const login = document.getElementById("LOGIN");
 async function signInWithGithub() {
   const { data, error } = await supabase2.auth.signInWithOAuth({
     provider: "github",
-    options: {
-      redirectTo: `https://judemakes.dev/family/src`,
-    },
   });
 }
 const user = null;

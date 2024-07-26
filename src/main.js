@@ -31,6 +31,7 @@ function initMap() {
     .bindPopup("A marker in London.")
     .openPopup();
 }
+initMap();
 function loop() {
   if (currentGroup === "family") {
     familypage.style.display = "block";

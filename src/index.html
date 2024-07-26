@@ -1,39 +1,50 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Superbase Web UI</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="main.js" type="module"></script>
-</head>
-<body>
-  <div class="container">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <h2>Channels</h2>
-      <ul>
-        <li>General</li>
-        <li>Random</li>
-        <!-- Add more channels or navigation items here -->
-      </ul>
-    </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Superbase Web UI</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="main.js" type="module"></script>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <h2>Channels</h2>
+        <button id="Home">home</button>
+        <button id="Random">random</button>
+      </div>
 
-    <!-- Chat Area -->
-    <div class="chat-area">
-      <ul id="dataList" class="messages">
-        <!-- Messages will be dynamically added here -->
-      </ul>
-      <div class="input-area">
-        <form id="dataForm">
-          <input type="text" id="message" name="message" placeholder="Enter message"autocomplete="off" required>
-          <input type="text" id="user" name="user" placeholder="Enter user" autocomplete="off"required>
-          <button id="submit" type="submit">Submit</button>
-        </form>
+      <!-- Chat Area -->
+      <div class="chat-area">
+        <ul id="dataList" class="messages">
+          <!-- Messages will be dynamically added here -->
+        </ul>
+        <div class="input-area">
+          <form id="dataForm">
+            <input
+              type="text"
+              id="user"
+              name="user"
+              placeholder="Enter user"
+              autocomplete="off"
+              required
+            />
+            <input
+              type="text"
+              id="message"
+              name="message"
+              placeholder="Enter message"
+              autocomplete="off"
+              required
+            />
+            <button id="submit" type="submit">Submit</button>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
-</body>
+  </body>
 </html>

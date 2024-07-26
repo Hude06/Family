@@ -33,7 +33,7 @@ login.addEventListener("click", async function () {
 });
 
 let logedInAs = await userStatus();
-if (logedInAs.data.user.email) {
+if (await logedInAs.data.user.email) {
   console.log("lOgin in");
   let logedInAsEmail = logedInAs.data.user.email;
   document.getElementById("logedin").innerHTML = logedInAsEmail;

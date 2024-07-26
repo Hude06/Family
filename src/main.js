@@ -6,23 +6,51 @@ const supabase2 = createClient(
 let submit = document.getElementById("submit");
 const ul = document.getElementById("dataList");
 let currentGroup = "home";
-
 const sidebar = document.querySelector(".sidebar");
-
-// Get all child elements of the <div>
-const childElements = sidebar.children; // This returns an HTMLCollection
-
-// Convert HTMLCollection to an array (optional)
-const childElementsArray = Array.from(childElements);
-for (let i = 0; i < childElementsArray.length; i++) {
-  if (childElementsArray[i].tagName === "BUTTON") {
-    childElementsArray[i].addEventListener("click", async function () {
-      console.log("Button clicked", childElementsArray[i].textContent);
-      currentGroup = childElementsArray[i].textContent;
-      await data_to_list();
-    });
+const newGroup = document.getElementById("New");
+async function signInWithGithub() {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "github",
+  });
+}
+signInWithGithub();
+async function initGroups() {
+  let groups = await fetchData();
+  for (let i = 0; i < groups.length; i++) {
+    console.log("GGGG", groups[i].group);
+    let group = document.createElement("button");
+    group.textContent = groups[i].group;
+    group.className = "group";
+    sidebar.appendChild(group);
   }
 }
+
+await initGroups();
+function checkButtons() {
+  const childElements = sidebar.children;
+  const childElementsArray = Array.from(childElements);
+  for (let i = 0; i < childElementsArray.length; i++) {
+    if (childElementsArray[i].tagName === "BUTTON") {
+      if (childElementsArray[i].className === "group") {
+        childElementsArray[i].addEventListener("click", async function () {
+          console.log("Button clicked", childElementsArray[i].textContent);
+          currentGroup = childElementsArray[i].textContent;
+          await data_to_list();
+        });
+      }
+    }
+  }
+}
+checkButtons();
+newGroup.addEventListener("click", async function () {
+  alert("New Group");
+  let groupName = prompt("Enter the group name");
+  let group = document.createElement("button");
+  group.textContent = groupName;
+  group.className = "group";
+  sidebar.appendChild(group);
+  checkButtons();
+});
 function addListItem(text, user) {
   // Create a new LI element for the text
   const div = document.createElement("div");
@@ -43,7 +71,12 @@ async function data_to_list() {
   let data = await fetchData();
   ul.innerHTML = "";
   for (let i = 0; i < data.length; i++) {
-    addListItem(data[i].message, data[i].user);
+    console.log(data[i].group, currentGroup);
+    if (data[i].group.toLowerCase() === currentGroup.toLowerCase()) {
+      addListItem(data[i].message, data[i].user);
+    } else {
+      console.log("Not in the group");
+    }
   }
   setTimeout(data_to_list, 5000);
 }
@@ -53,30 +86,30 @@ submit.addEventListener("click", async function (event) {
 
   let message = document.getElementById("message").value;
   let user = document.getElementById("user").value;
-  await insertMessage(currentGroup, message, user);
+  await insertMessage("messages", message, user);
   await data_to_list();
 });
 
 async function insertMessage(group, m, u) {
-  const { error } = await supabase2.from(group).insert({ message: m, user: u });
+  const { error } = await supabase2
+    .from(group)
+    .insert({ message: m, user: u, group: currentGroup });
 
   if (error) {
     // Handle error here
     console.error("Error inserting country:", error.message);
   } else {
     // Handle success if needed
-    console.log("Country inserted successfully");
   }
 }
 
 async function fetchData() {
   try {
-    const { data, error } = await supabase2.from(currentGroup).select();
+    const { data, error } = await supabase2.from("messages").select();
 
     if (error) {
       console.error("Error fetching data:", error);
     } else {
-      console.log("Data:", data);
       return data;
     }
   } catch (error) {

@@ -8,6 +8,7 @@ const ul = document.getElementById("dataList");
 let currentGroup = "home";
 const sidebar = document.querySelector(".sidebar");
 const newGroup = document.getElementById("New");
+const login = document.getElementById("login");
 async function signInWithGithub() {
   const { data, error } = await supabase2.auth.signInWithOAuth({
     provider: "github",
@@ -16,7 +17,9 @@ async function signInWithGithub() {
     },
   });
 }
-signInWithGithub();
+login.addEventListener("click", async function () {
+  signInWithGithub();
+});
 async function initGroups() {
   let groups = await fetchData();
   for (let i = 0; i < groups.length; i++) {

@@ -9,6 +9,13 @@ let currentGroup = "home";
 const sidebar = document.querySelector(".sidebar");
 const newGroup = document.getElementById("New");
 const login = document.getElementById("LOGIN");
+const familyBUTT = document.getElementById("FAMILY");
+let texting = true;
+familyBUTT.addEventListener("click", async function () {
+  currentGroup = "family";
+  texting = false;
+  await data_to_list();
+});
 async function signInWithGithub() {
   const { data, error } = await supabase2.auth.signInWithOAuth({
     provider: "github",
@@ -104,11 +111,13 @@ async function data_to_list() {
 }
 await data_to_list();
 submit.addEventListener("click", async function (event) {
-  event.preventDefault(); // Prevent the default form submission behavior
-  let message = document.getElementById("message").value;
-  let user = logedInAsEmail;
-  await insertMessage("messages", message, user);
-  await data_to_list();
+  if (texting === true && logedInAsEmail) {
+    event.preventDefault(); // Prevent the default form submission behavior
+    let message = document.getElementById("message").value;
+    let user = logedInAsEmail;
+    await insertMessage("messages", message, user);
+    await data_to_list();
+  }
 });
 
 async function insertMessage(group, m, u) {

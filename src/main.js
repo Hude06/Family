@@ -99,7 +99,7 @@ submit.addEventListener("click", async function (event) {
   event.preventDefault(); // Prevent the default form submission behavior
 
   let message = document.getElementById("message").value;
-  let user = document.getElementById("user").value;
+  let user = logedInAsEmail;
   await insertMessage("messages", message, user);
   await data_to_list();
 });

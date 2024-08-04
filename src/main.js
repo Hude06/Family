@@ -2,7 +2,7 @@
 const { createClient } = supabase;
 const supabaseClient = createClient(
   "https://zzalsobevusrwlgyahaj.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6YWxzb2JldnVzcndsZ3lhaGFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE5MjUyNTksImV4cCI6MjAzNzUwMTI1OX0.H8hlotvviqMWAhUs8nMju1s81uMbffzPYwHC_G-LJoM"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6YWxzb2JldnVzcndsZ3lhaGFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE5MjUyNTksImV4cCI6MjAzNzUwMTI1OX0.H8hlotvviqMWAhUs8nMju1s81uMbffzPYwHC_G-LJoM",
 );
 
 // DOM elements
@@ -11,39 +11,42 @@ const ul = document.getElementById("dataList");
 const sidebar = document.querySelector(".sidebar");
 const newGroupButton = document.getElementById("New");
 const loginButton = document.getElementById("LOGIN");
-const familyButton = document.getElementById("FAMILY");
-const familyPage = document.getElementById("Family_Tracking");
 const chatArea = document.getElementById("chat-area");
 
 // State variables
 let currentGroup = "home";
 let isTexting = true;
 let loggedInEmail = "";
-
-// Initialize the map
-function initMap() {
-  const map = L.map('map').setView([34, -118], 5);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(map);
-  map.options.maxZoom = 19;
+let all_groups = []; // Array to store all groups
+// Sign in with GitHub
+const { data: userData, error: userError } =
+  await supabaseClient.auth.getUser();
+if (userData) {
+  loggedInEmail = userData.user.email || "";
 }
-
 // Initialize event listeners
 function initEventListeners() {
   loginButton.addEventListener("click", signInWithGithub);
-  familyButton.addEventListener("click", () => {
-    currentGroup = "family";
-  });
   newGroupButton.addEventListener("click", async () => {
     const groupName = prompt("Enter the group name");
-    if (groupName) {
-      const newGroupButton = document.createElement("button");
-      newGroupButton.textContent = groupName;
-      newGroupButton.className = "group";
-      sidebar.appendChild(newGroupButton);
-      addGroupButtonEventListener(newGroupButton);
+    if (groupName === null || groupName.trim() === "") {
+      alert("Group name cannot be empty");
+      return;
     }
+
+    if (all_groups.includes(groupName)) {
+      alert("Group already exists");
+      return;
+    }
+
+    // Create and add new group button only if group does not exist
+    const newGroupButton = document.createElement("button");
+    newGroupButton.textContent = groupName;
+    newGroupButton.className = "group";
+    sidebar.appendChild(newGroupButton);
+    all_groups.push(groupName);
+    addGroupButtonEventListener(newGroupButton);
+    console.log(all_groups);
   });
 }
 
@@ -51,19 +54,22 @@ function initEventListeners() {
 function addGroupButtonEventListener(button) {
   button.addEventListener("click", async () => {
     currentGroup = button.textContent;
-    await updateDataList();
   });
 }
 
 // Initialize groups in the sidebar
 async function initGroups() {
   const groups = await fetchData();
-  groups.forEach(group => {
-    const groupButton = document.createElement("button");
-    groupButton.textContent = group.group;
-    groupButton.className = "group";
-    sidebar.appendChild(groupButton);
-    addGroupButtonEventListener(groupButton);
+  groups.forEach((group) => {
+    if (!all_groups.includes(group.group)) {
+      const groupButton = document.createElement("button");
+      groupButton.textContent = group.group;
+      groupButton.className = "group";
+      sidebar.appendChild(groupButton);
+      addGroupButtonEventListener(groupButton);
+      all_groups.push(group.group);
+      console.log(all_groups);
+    }
   });
 }
 
@@ -72,10 +78,11 @@ async function updateDataList() {
   try {
     const data = await fetchData();
     ul.innerHTML = "";
-    data.filter(item => item.group.toLowerCase() === currentGroup.toLowerCase())
-        .forEach(item => addListItem(item.message, item.user));
+    data
+      .filter((item) => item.group.toLowerCase() === currentGroup.toLowerCase())
+      .forEach((item) => addListItem(item.message, item.user));
 
-    setTimeout(updateDataList, 5000);
+    setTimeout(updateDataList, 200);
   } catch (error) {
     console.error("Error updating data list:", error.message);
   }
@@ -94,11 +101,12 @@ function addListItem(text, user) {
 
 // Handle message submission
 async function handleSubmit(event) {
+  console.log("submit button clicked");
+  console.log(loggedInEmail);
   if (isTexting && loggedInEmail) {
     event.preventDefault();
     const message = document.getElementById("message").value;
     await insertMessage("messages", message, loggedInEmail);
-    await updateDataList();
   } else {
     alert("You are not logged in or texting is disabled");
   }
@@ -129,14 +137,12 @@ async function fetchData() {
   }
 }
 
-// Sign in with GitHub
-const { data: userData, error: userError } = await supabaseClient.auth.getUser();
 async function signInWithGithub() {
   try {
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
       provider: "github",
       options: {
-        redirectTo: "https://judemakes.dev/family/src",
+        redirectTo: "http://127.0.0.1:5500/src",
       },
     });
 
@@ -145,7 +151,7 @@ async function signInWithGithub() {
     // Retrieve user information
     if (userError) throw userError;
 
-    loggedInEmail = userData?.user?.email || "";
+    loggedInEmail = userData.user.email || "";
     console.log("Logged in as:", loggedInEmail);
     document.getElementById("logedin").innerHTML = loggedInEmail;
   } catch (error) {
@@ -155,24 +161,22 @@ async function signInWithGithub() {
 
 // Function to update the display based on the current group
 function updateDisplay() {
-  familyPage.style.display = (currentGroup === "family" && loggedInEmail) ? "flex" : "none";
   chatArea.style.display = isTexting ? "flex" : "none";
 }
-
 // Function to loop for periodic updates
 
 function loop() {
-  document.getElementById("logedin").innerHTML = "LogedINAS" + userData.user.email;
+  document.getElementById("logedin").innerHTML = userData.user.email;
   updateDisplay();
   requestAnimationFrame(loop);
 }
 
 // Initialization function
 async function init() {
-  initMap();
   initEventListeners();
   await initGroups();
   loop();
+  updateDataList();
   submitButton.addEventListener("click", handleSubmit);
 }
 

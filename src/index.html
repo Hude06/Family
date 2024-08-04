@@ -6,11 +6,8 @@
     <title>Superbase Web UI</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-</head>
+    <script src="main.js" type="module"></script>
+  </head>
   <body>
     <div class="container">
       <!-- Sidebar -->
@@ -19,13 +16,9 @@
         <h3 id="logedin">Logged in as:</h3>
         <!-- Corrected 'Loged' to 'Logged' -->
         <button id="LOGIN">Login</button>
-        <button id="New">+</button>   
-        <button id="FAMILY">Where is my Family?</button>
+        <button id="New">+</button>
       </div>
-      <script src="main.js" type="module"></script>
-      <div class="Family_Tracking" id="Family_Tracking">
-        <div id="map"></div>
-        <div class="chat-area" id="chat-area">
+      <div class="chat-area" id="chat-area">
         <ul id="dataList" class="messages">
           <!-- Messages will be dynamically added here -->
         </ul>

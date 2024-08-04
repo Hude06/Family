@@ -1,178 +1,180 @@
+// Initialize Supabase client
 const { createClient } = supabase;
-const supabase2 = createClient(
+const supabaseClient = createClient(
   "https://zzalsobevusrwlgyahaj.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6YWxzb2JldnVzcndsZ3lhaGFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE5MjUyNTksImV4cCI6MjAzNzUwMTI1OX0.H8hlotvviqMWAhUs8nMju1s81uMbffzPYwHC_G-LJoM",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6YWxzb2JldnVzcndsZ3lhaGFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE5MjUyNTksImV4cCI6MjAzNzUwMTI1OX0.H8hlotvviqMWAhUs8nMju1s81uMbffzPYwHC_G-LJoM"
 );
-let submit = document.getElementById("submit");
+
+// DOM elements
+const submitButton = document.getElementById("submit");
 const ul = document.getElementById("dataList");
-let currentGroup = "home";
 const sidebar = document.querySelector(".sidebar");
-const newGroup = document.getElementById("New");
-const login = document.getElementById("LOGIN");
-const familyBUTT = document.getElementById("FAMILY");
-const familypage = document.getElementById("Family_Tracking");
-let texting = true;
-familyBUTT.addEventListener("click", async function () {
-  currentGroup = "family";
-});
+const newGroupButton = document.getElementById("New");
+const loginButton = document.getElementById("LOGIN");
+const familyButton = document.getElementById("FAMILY");
+const familyPage = document.getElementById("Family_Tracking");
+const chatArea = document.getElementById("chat-area");
+
+// State variables
+let currentGroup = "home";
+let isTexting = true;
+let loggedInEmail = "";
+
+// Initialize the map
 function initMap() {
-  // Initialize the map and set its view to the desired geographical coordinates
-  var map = L.map("map").setView([33.72, -84.41], 3); // Coordinates for London with zoom level 13
-
-  // Add a tile layer to the map (this is where the OSM data is fetched from)
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  const map = L.map('map').setView([34, -118], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
+  map.options.maxZoom = 19;
+}
 
-  // // Optionally, add a marker
-  // L.marker([51.5, -0.09])
-  //   .addTo(map)
-  //   .bindPopup("A marker in London.")
-  //   .openPopup();
-}
-initMap();
-function loop() {
-  if (currentGroup === "family") {
-    familypage.style.display = "flex";
-    texting = false;
-  } else {
-    familypage.style.display = "none";
-    texting = true;
-  }
-  if (texting) {
-    document.getElementById("chat-area").style.display = "flex";
-  } else {
-    document.getElementById("chat-area").style.display = "none";
-  }
-  requestAnimationFrame(loop);
-}
-loop();
-async function signInWithGithub() {
-  const { data, error } = await supabase2.auth.signInWithOAuth({
-    provider: "github",
-    options: {
-      redirectTo: "https://judemakes.dev/family/src",
-    },
+// Initialize event listeners
+function initEventListeners() {
+  loginButton.addEventListener("click", signInWithGithub);
+  familyButton.addEventListener("click", () => {
+    currentGroup = "family";
+  });
+  newGroupButton.addEventListener("click", async () => {
+    const groupName = prompt("Enter the group name");
+    if (groupName) {
+      const newGroupButton = document.createElement("button");
+      newGroupButton.textContent = groupName;
+      newGroupButton.className = "group";
+      sidebar.appendChild(newGroupButton);
+      addGroupButtonEventListener(newGroupButton);
+    }
   });
 }
-const user = null;
-async function userStatus() {
-  const user = supabase2.auth.getUser();
-  return user;
-}
-login.addEventListener("click", async function () {
-  signInWithGithub();
-  if (logedInAs.data.user.email) {
-    document.getElementById("logedin").innerHTML = logedInAsEmail;
-    document.getElementById("LOGIN").style.display = "none";
-  }
-});
 
-let logedInAs = await userStatus();
-let logedInAsEmail = logedInAs.data.user.email;
-if (await logedInAs.data.user.email) {
-  document.getElementById("logedin").innerHTML = logedInAsEmail;
+// Add event listener for sidebar group buttons
+function addGroupButtonEventListener(button) {
+  button.addEventListener("click", async () => {
+    currentGroup = button.textContent;
+    await updateDataList();
+  });
 }
+
+// Initialize groups in the sidebar
 async function initGroups() {
-  let groups = await fetchData();
-  for (let i = 0; i < groups.length; i++) {
-    let group = document.createElement("button");
-    group.textContent = groups[i].group;
-    group.className = "group";
-    sidebar.appendChild(group);
+  const groups = await fetchData();
+  groups.forEach(group => {
+    const groupButton = document.createElement("button");
+    groupButton.textContent = group.group;
+    groupButton.className = "group";
+    sidebar.appendChild(groupButton);
+    addGroupButtonEventListener(groupButton);
+  });
+}
+
+// Fetch and display data in the list
+async function updateDataList() {
+  try {
+    const data = await fetchData();
+    ul.innerHTML = "";
+    data.filter(item => item.group.toLowerCase() === currentGroup.toLowerCase())
+        .forEach(item => addListItem(item.message, item.user));
+
+    setTimeout(updateDataList, 5000);
+  } catch (error) {
+    console.error("Error updating data list:", error.message);
   }
 }
 
-await initGroups();
-function checkButtons() {
-  const childElements = sidebar.children;
-  const childElementsArray = Array.from(childElements);
-  for (let i = 0; i < childElementsArray.length; i++) {
-    if (childElementsArray[i].tagName === "BUTTON") {
-      if (childElementsArray[i].className === "group") {
-        childElementsArray[i].addEventListener("click", async function () {
-          currentGroup = childElementsArray[i].textContent;
-          await data_to_list();
-        });
-      }
-    }
-  }
-}
-checkButtons();
-newGroup.addEventListener("click", async function () {
-  alert("New Group");
-  let groupName = prompt("Enter the group name");
-  let group = document.createElement("button");
-  group.textContent = groupName;
-  group.className = "group";
-  sidebar.appendChild(group);
-  checkButtons();
-});
+// Add a new list item to the data list
 function addListItem(text, user) {
-  // Create a new LI element for the text
   const div = document.createElement("div");
-  const textItem = document.createElement("li");
-  textItem.textContent = text;
-
-  // Create a new LI element for the user
-  const userItem = document.createElement("li");
-  userItem.textContent = user;
   div.className = "message";
-  // Get the UL element
-  userItem.className = "user";
-  div.appendChild(userItem);
-  div.appendChild(textItem);
+  div.innerHTML = `
+    <li class="user">${user}</li>
+    <li>${text}</li>
+  `;
   ul.appendChild(div);
 }
-async function data_to_list() {
-  let data = await fetchData();
-  ul.innerHTML = "";
-  for (let i = 0; i < data.length; i++) {
-    if (data[i].group.toLowerCase() === currentGroup.toLowerCase()) {
-      addListItem(data[i].message, data[i].user);
-    } else {
-    }
-  }
-  setTimeout(data_to_list, 5000);
-}
-await data_to_list();
-submit.addEventListener("click", async function (event) {
-  if (texting === true && logedInAsEmail) {
-    event.preventDefault(); // Prevent the default form submission behavior
-    let message = document.getElementById("message").value;
-    let user = logedInAsEmail;
-    await insertMessage("messages", message, user);
-    await data_to_list();
-  } else {
-    alert("You are not logged in");
-    alert("Texting is disabled");
-  }
-});
 
-async function insertMessage(group, m, u) {
-  const { error } = await supabase2
-    .from(group)
-    .insert({ message: m, user: u, group: currentGroup });
-
-  if (error) {
-    // Handle error here
-    console.error("Error inserting country:", error.message);
+// Handle message submission
+async function handleSubmit(event) {
+  if (isTexting && loggedInEmail) {
+    event.preventDefault();
+    const message = document.getElementById("message").value;
+    await insertMessage("messages", message, loggedInEmail);
+    await updateDataList();
   } else {
-    // Handle success if needed
+    alert("You are not logged in or texting is disabled");
   }
 }
 
+// Insert a new message into the database
+async function insertMessage(group, message, user) {
+  try {
+    const { error } = await supabaseClient
+      .from(group)
+      .insert({ message, user, group: currentGroup });
+
+    if (error) throw error;
+  } catch (error) {
+    console.error("Error inserting message:", error.message);
+  }
+}
+
+// Fetch data from the database
 async function fetchData() {
   try {
-    const { data, error } = await supabase2.from("messages").select();
-
-    if (error) {
-      console.error("Error fetching data:", error);
-    } else {
-      return data;
-    }
+    const { data, error } = await supabaseClient.from("messages").select();
+    if (error) throw error;
+    return data;
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error("Error fetching data:", error.message);
+    return [];
   }
 }
+
+// Sign in with GitHub
+const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+async function signInWithGithub() {
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "github",
+      options: {
+        redirectTo: "https://judemakes.dev/family/src",
+      },
+    });
+
+    if (error) throw error;
+
+    // Retrieve user information
+    if (userError) throw userError;
+
+    loggedInEmail = userData?.user?.email || "";
+    console.log("Logged in as:", loggedInEmail);
+    document.getElementById("logedin").innerHTML = loggedInEmail;
+  } catch (error) {
+    console.error("Authentication error:", error.message);
+  }
+}
+
+// Function to update the display based on the current group
+function updateDisplay() {
+  familyPage.style.display = (currentGroup === "family" && loggedInEmail) ? "flex" : "none";
+  chatArea.style.display = isTexting ? "flex" : "none";
+}
+
+// Function to loop for periodic updates
+
+function loop() {
+  document.getElementById("logedin").innerHTML = "LogedINAS" + userData.user.email;
+  updateDisplay();
+  requestAnimationFrame(loop);
+}
+
+// Initialization function
+async function init() {
+  initMap();
+  initEventListeners();
+  await initGroups();
+  loop();
+  submitButton.addEventListener("click", handleSubmit);
+}
+
+// Execute initialization function
+init();

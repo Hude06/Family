@@ -12,6 +12,7 @@ const sidebar = document.querySelector(".sidebar");
 const newGroupButton = document.getElementById("New");
 const loginButton = document.getElementById("LOGIN");
 const chatArea = document.getElementById("chat-area");
+const trash = document.getElementById("trashcan");
 
 // State variables
 let currentGroup = "home";
@@ -24,9 +25,30 @@ const { data: userData, error: userError } =
 if (userData) {
   loggedInEmail = userData.user.email || "";
 }
+function removeBUTTON(id) {
+  console.log(id);
+  document.getElementById(id).remove();
+}
 // Initialize event listeners
 function initEventListeners() {
   loginButton.addEventListener("click", signInWithGithub);
+  trash.addEventListener("click", async () => {
+    const groupId = currentGroup; // Replace this with the actual value you want to match
+
+    const { data, error } = await supabaseClient
+      .from("messages")
+      .delete()
+      .eq("group", groupId); // Ensure 'group' is the column name and 'groupId' is the value to match
+
+    if (error) {
+      console.error("Error deleting message:", error);
+    } else {
+      console.log("Message deleted successfully");
+    }
+    removeBUTTON(currentGroup);
+    console.log(currentGroup, all_groups);
+  });
+
   newGroupButton.addEventListener("click", async () => {
     const groupName = prompt("Enter the group name");
     if (groupName === null || groupName.trim() === "") {
@@ -43,6 +65,7 @@ function initEventListeners() {
     const newGroupButton = document.createElement("button");
     newGroupButton.textContent = groupName;
     newGroupButton.className = "group";
+    newGroupButton.id = groupName;
     sidebar.appendChild(newGroupButton);
     all_groups.push(groupName);
     addGroupButtonEventListener(newGroupButton);
@@ -65,6 +88,7 @@ async function initGroups() {
       const groupButton = document.createElement("button");
       groupButton.textContent = group.group;
       groupButton.className = "group";
+      groupButton.id = group.group;
       sidebar.appendChild(groupButton);
       addGroupButtonEventListener(groupButton);
       all_groups.push(group.group);

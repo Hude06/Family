@@ -10,14 +10,18 @@ let pods = [];
 let user = undefined;
 const { data: userData, error: userError } =
   await supabaseClient.auth.getUser();
+console.log(userData);
 setTimeout(() => {
   if (userData.user !== null) {
     user = userData.user.email || "";
     fetchData().then((data) => {
       console.log("POds", data);
       for (let i = 0; i < data.length; i++) {
-        if (data[i].users.includes(user)) {
-          pods.push(new Pod(data[i].pod, data[i].id));
+        for (let u = 0; u < data[i].users.length; u++) {
+          console.log("Test", data[i].users[u]);
+          if (data[i].users[u].includes(user)) {
+            pods.push(new Pod(data[i].pod, data[i].id));
+          }
         }
       }
       renderPods();
@@ -88,6 +92,12 @@ async function fetchData() {
     return [];
   }
 }
+async function updateRow(id, name, user) {
+  const { data, error } = await supabaseClient
+    .from("pods")
+    .upsert({ id: id, pod: name, users: user })
+    .select();
+}
 function buttons() {
   newPodButton.addEventListener("click", async () => {
     const podName = prompt("Enter the name of the new pod");
@@ -108,6 +118,7 @@ function buttons() {
         pod.users.push(user);
         pods.push(new Pod(pod.pod, pod.id));
         renderPods();
+        updateRow(pod.id, pod.pod, pod.users);
         console.log(pods);
       }
     } catch (error) {

@@ -7,9 +7,12 @@ const newPodButton = document.getElementById("NewPod");
 const JoinPod = document.getElementById("JoinPod");
 const podsDIV = document.getElementById("podList");
 let pods = [];
+let user = undefined;
 const { data: userData, error: userError } =
   await supabaseClient.auth.getUser();
-let user = userData.user.email || "";
+if (userData.user !== null) {
+  user = userData.user.email || "";
+}
 class Pod {
   constructor(name, id) {
     this.name = name;

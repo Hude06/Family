@@ -13,22 +13,21 @@ const newGroupButton = document.getElementById("New");
 const loginButton = document.getElementById("LOGIN");
 const chatArea = document.getElementById("chat-area");
 const trash = document.getElementById("trashcan");
-
-// State variables
 let currentGroup = "home";
 let isTexting = true;
 let loggedInEmail = "";
-let all_groups = []; // Array to store all groups
-// Sign in with GitHub
+let all_groups = [];
 const { data: userData, error: userError } =
   await supabaseClient.auth.getUser();
-console.log("user is", await userData);
-loggedInEmail = userData.user.email || "";
+if (userData.user !== null) {
+  console.log(userData.user);
+  loggedInEmail = userData.user.email || "";
+}
+
 function removeBUTTON(id) {
   console.log(id);
   document.getElementById(id).remove();
 }
-// Initialize event listeners
 function initEventListeners() {
   loginButton.addEventListener(
     "click",
@@ -36,8 +35,7 @@ function initEventListeners() {
     console.log("clicked"),
   );
   trash.addEventListener("click", async () => {
-    const groupId = currentGroup; // Replace this with the actual value you want to match
-
+    const groupId = currentGroup;
     const { data, error } = await supabaseClient
       .from("messages")
       .delete()

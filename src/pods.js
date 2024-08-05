@@ -13,6 +13,15 @@ const { data: userData, error: userError } =
 setTimeout(() => {
   if (userData.user !== null) {
     user = userData.user.email || "";
+    fetchData().then((data) => {
+      console.log("POds", data);
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].users.includes(user)) {
+          pods.push(new Pod(data[i].pod, data[i].id));
+        }
+      }
+      renderPods();
+    });
   }
 }, 1000);
 class Pod {
@@ -43,7 +52,7 @@ async function insertPod(id, pod, users) {
   }
 }
 function renderPods() {
-  podsDIV.innerHTML = ""; // Clear the container before appending new elements
+  podsDIV.innerHTML = "";
   pods.forEach((pod) => {
     let button1 = document.createElement("button");
     button1.textContent = pod.name;
@@ -63,22 +72,6 @@ async function fetchData() {
     return [];
   }
 }
-function getPodByID(id) {
-  return fetchData()
-    .then((data) => {
-      for (let i = 0; i < data.length; i++) {
-        if (data[i].id === id) {
-          return data[i]; // Found the matching pod
-        }
-      }
-      return null; // Return null if no matching pod is found
-    })
-    .catch((error) => {
-      console.error("Error fetching data:", error);
-      throw error; // Optionally rethrow the error if you want to handle it further up the chain
-    });
-}
-
 function buttons() {
   newPodButton.addEventListener("click", async () => {
     const podName = prompt("Enter the name of the new pod");
@@ -88,16 +81,16 @@ function buttons() {
       console.log(newPod.name, newPod.id);
       pods.push(newPod);
       insertPod(newPod.id, newPod.name, newPod.users);
-      renderPods(); // Update the UI
+      renderPods();
     }
   });
   JoinPod.addEventListener("click", async () => {
     const inviteCode = prompt("Invite code???");
     try {
-      const pod = await getPodByID(inviteCode); // Await the promise from getPodByID
+      const pod = await getPodByID(inviteCode);
       if (pod !== null) {
-        pod.users.push(user); // Add the current user to the pod
-        pods.push(new Pod(pod.pod, pod.id)); // Add the pod to the pods array
+        pod.users.push(user);
+        pods.push(new Pod(pod.pod, pod.id));
         renderPods();
         console.log(pods);
       }
@@ -105,24 +98,11 @@ function buttons() {
       console.error("Error retrieving pod:", error);
     }
 
-    console.log(inviteCode); // Log the invite code
+    console.log(inviteCode);
   });
 }
 
-buttons();
-fetchData().then((data) => {
-  // Assuming data is an array of objects
-
-  // Output the original data
-  console.log("POds", data);
-  for (let i = 0; i < data.length; i++) {
-    // Push new Pod object into the transformed array
-    if (data[i].users.includes(user)) {
-      pods.push(new Pod(data[i].pod, data[i].id));
-    }
-  }
-
-  // Replace the original array with the transformed array
-  // Render the new pods
-  renderPods();
-});
+function init() {
+  buttons();
+}
+init();

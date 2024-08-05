@@ -21,7 +21,7 @@ const { data: userData, error: userError } =
   await supabaseClient.auth.getUser();
 setTimeout(() => {
   if (userData.user !== null) {
-    user = userData.user.email || "";
+    loggedInEmail = userData.user.email || "";
   }
 }, 1000);
 

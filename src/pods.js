@@ -51,6 +51,22 @@ async function insertPod(id, pod, users) {
     console.error("Error inserting message:", error.message);
   }
 }
+function getPodByID(id) {
+  return fetchData()
+    .then((data) => {
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].id === id) {
+          return data[i];
+        }
+      }
+      return null;
+    })
+    .catch((error) => {
+      console.error("Error fetching data:", error);
+      throw error;
+    });
+}
+
 function renderPods() {
   podsDIV.innerHTML = "";
   pods.forEach((pod) => {

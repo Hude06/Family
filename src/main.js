@@ -22,16 +22,19 @@ let all_groups = []; // Array to store all groups
 // Sign in with GitHub
 const { data: userData, error: userError } =
   await supabaseClient.auth.getUser();
-if (userData) {
-  loggedInEmail = userData.user.email || "";
-}
+console.log("user is", await userData);
+loggedInEmail = userData.user.email || "";
 function removeBUTTON(id) {
   console.log(id);
   document.getElementById(id).remove();
 }
 // Initialize event listeners
 function initEventListeners() {
-  loginButton.addEventListener("click", signInWithGithub);
+  loginButton.addEventListener(
+    "click",
+    signInWithGithub,
+    console.log("clicked"),
+  );
   trash.addEventListener("click", async () => {
     const groupId = currentGroup; // Replace this with the actual value you want to match
 
@@ -190,7 +193,9 @@ function updateDisplay() {
 // Function to loop for periodic updates
 
 function loop() {
-  document.getElementById("logedin").innerHTML = userData.user.email;
+  if (loggedInEmail !== "") {
+    document.getElementById("logedin").innerHTML = userData.user.email;
+  }
   updateDisplay();
   requestAnimationFrame(loop);
 }
@@ -198,6 +203,7 @@ function loop() {
 // Initialization function
 async function init() {
   initEventListeners();
+  console.log("INITING");
   await initGroups();
   loop();
   updateDataList();

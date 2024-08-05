@@ -7,10 +7,21 @@
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="main.js" type="module"></script>
+    <script type="module" src="./pods.js"></script>
   </head>
   <body>
     <div class="container">
       <!-- Sidebar -->
+      <div class="pods">
+        <h2>Pods</h2>
+        <button id="JoinPod" class="newpod">Join Pod</button>
+
+        <button id="NewPod" class="newpod">New Pod</button>
+        <div id="podList">
+          <!-- Pods will be dynamically added here -->
+        </div>
+      </div>
+
       <div class="sidebar">
         <h2>Channels</h2>
         <h3 id="logedin">Logged in as:</h3>

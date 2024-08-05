@@ -10,9 +10,11 @@ let pods = [];
 let user = undefined;
 const { data: userData, error: userError } =
   await supabaseClient.auth.getUser();
-if (userData.user !== null) {
-  user = userData.user.email || "";
-}
+setTimeout(() => {
+  if (userData.user !== null) {
+    user = userData.user.email || "";
+  }
+}, 1000);
 class Pod {
   constructor(name, id) {
     this.name = name;

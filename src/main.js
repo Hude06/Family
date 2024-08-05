@@ -19,10 +19,11 @@ let loggedInEmail = "";
 let all_groups = [];
 const { data: userData, error: userError } =
   await supabaseClient.auth.getUser();
-if (userData.user !== null) {
-  console.log(userData.user);
-  loggedInEmail = userData.user.email || "";
-}
+setTimeout(() => {
+  if (userData.user !== null) {
+    user = userData.user.email || "";
+  }
+}, 1000);
 
 function removeBUTTON(id) {
   console.log(id);

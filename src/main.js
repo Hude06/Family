@@ -6,8 +6,8 @@ const supabaseClient = createClient(
 );
 import { encrypt, decrypt } from "./encryption.js";
 import { fetchUserEmail } from "./supabase.js";
+import { getCurretPod as getCurrentPod, getPodByID } from "./pods.js";
 // DOM elements
-console.log("Window is", window.location.href);
 const submitButton = document.getElementById("submit");
 const ul = document.getElementById("dataList");
 const sidebar = document.querySelector(".sidebar");
@@ -15,6 +15,7 @@ const newGroupButton = document.getElementById("New");
 const loginButton = document.getElementById("LOGIN");
 const chatArea = document.getElementById("chat-area");
 const trash = document.getElementById("trashcan");
+const podList = document.getElementById("podList");
 let currentGroup = "home";
 let isTexting = true;
 let loggedInEmail = "";
@@ -24,16 +25,11 @@ let all_groups = [];
 // Call the function to create and insert the elements
 function removeBUTTON(id) {
   if (AREWELOGEDIN) {
-    console.log(id);
     document.getElementById(id).remove();
   }
 }
 function initEventListeners() {
-  loginButton.addEventListener(
-    "click",
-    signInWithGithub,
-    console.log("clicked"),
-  );
+  loginButton.addEventListener("click", signInWithGithub);
   trash.addEventListener("click", async () => {
     const groupId = currentGroup;
     const { data, error } = await supabaseClient
@@ -44,10 +40,8 @@ function initEventListeners() {
     if (error) {
       console.error("Error deleting message:", error);
     } else {
-      console.log("Message deleted successfully");
     }
     removeBUTTON(currentGroup);
-    console.log(currentGroup, all_groups);
   });
 
   newGroupButton.addEventListener("click", async () => {
@@ -63,15 +57,13 @@ function initEventListeners() {
         return;
       }
 
-      // Create and add new group button only if group does not exist
-      const newGroupButton = document.createElement("button");
-      newGroupButton.textContent = groupName;
-      newGroupButton.className = "group";
-      newGroupButton.id = groupName;
-      sidebar.appendChild(newGroupButton);
       all_groups.push(groupName);
-      addGroupButtonEventListener(newGroupButton);
-      console.log(all_groups);
+      currentGroup = groupName;
+      insertMessage(
+        "messages",
+        `New group ${groupName} created`,
+        loggedInEmail,
+      );
     }
   });
 }
@@ -85,41 +77,77 @@ function addGroupButtonEventListener(button) {
 
 // Initialize groups in the sidebar
 async function initGroups() {
-  if (AREWELOGEDIN) {
+  document.getElementById("groups").innerHTML = "";
+  all_groups = [];
+
+  if (!AREWELOGEDIN) {
+    // Schedule the function to run again after 1 second if not logged in
+    setTimeout(initGroups, 1000);
+    return;
+  }
+
+  try {
     const groups = await fetchData();
-    groups.forEach((group) => {
-      if (!all_groups.includes(group.group)) {
+
+    // Store current pod information to avoid repeated calls
+    const currentPod = getCurrentPod(); // Fixed typo: `getCurretPod` -> `getCurrentPod`
+    if (currentPod === null) {
+      setTimeout(initGroups, 1000);
+      return;
+    }
+
+    const currentPodId = currentPod.id;
+
+    for (const group of groups) {
+      // Check if the group has not already been added and the current pod ID matches
+      if (!all_groups.includes(group.group) && currentPodId === group.pod) {
         const groupButton = document.createElement("button");
         groupButton.textContent = group.group;
         groupButton.className = "group";
         groupButton.id = group.group;
-        sidebar.appendChild(groupButton);
+        document.getElementById("groups").appendChild(groupButton);
         addGroupButtonEventListener(groupButton);
         all_groups.push(group.group);
-        console.log(all_groups);
       }
-    });
+    }
+  } catch (error) {
+    console.error("Error initializing groups:", error);
   }
+
+  // Schedule the function to run again after 1 second
+  setTimeout(initGroups, 200);
 }
 
 // Fetch and display data in the list
 async function updateDataList() {
-  try {
-    if (AREWELOGEDIN) {
-      const data = await fetchData();
-      ul.innerHTML = "";
-      data
-        .filter(
-          (item) => item.group.toLowerCase() === currentGroup.toLowerCase(),
-        )
-        .forEach((item) => addListItem(item.message, item.user));
+  if (!AREWELOGEDIN) return;
 
-      setTimeout(updateDataList, 1000);
+  try {
+    const data = await fetchData();
+    ul.innerHTML = "";
+
+    const filteredData = data.filter(
+      (item) => item.group.toLowerCase() === currentGroup.toLowerCase(),
+    );
+    let newData = [];
+    for (let i = 0; i < filteredData.length; i++) {
+      if (getCurrentPod() !== null) {
+        console.log(filteredData[i].pod, getCurrentPod().id);
+        if (filteredData[i].pod === getCurrentPod().id) {
+          newData.push(filteredData[i]);
+          console.log("Data", filteredData[i]);
+        }
+      }
     }
+    console.log(newData);
+    newData.forEach((item) => addListItem(item.message, item.user));
+
+    setTimeout(updateDataList, 1000);
   } catch (error) {
     console.error("Error updating data list:", error.message);
   }
 }
+
 // Add a new list item to the data list
 function addListItem(text, user) {
   let decrypted = decrypt(text, 3);
@@ -135,7 +163,6 @@ function addListItem(text, user) {
 
 // Handle message submission
 async function handleSubmit(event) {
-  console.log("submit button clicked");
   if (isTexting && AREWELOGEDIN) {
     event.preventDefault();
     const message = document.getElementById("message").value;
@@ -150,9 +177,12 @@ async function handleSubmit(event) {
 async function insertMessage(group, message, user) {
   let encryted = encrypt(message, 3);
   try {
-    const { error } = await supabaseClient
-      .from(group)
-      .insert({ message: encryted, user, group: currentGroup });
+    const { error } = await supabaseClient.from(group).insert({
+      message: encryted,
+      user,
+      group: currentGroup,
+      pod: await getCurrentPod().id,
+    });
 
     if (error) throw error;
   } catch (error) {
@@ -194,16 +224,14 @@ async function signInWithGithub() {
 function updateDisplay() {
   chatArea.style.display = isTexting ? "flex" : "none";
 }
-// Function to loop for periodic updates
-
 function loop() {
   if (AREWELOGEDIN) {
     document.getElementById("logedin").innerHTML = loggedInEmail;
   }
   updateDisplay();
-  requestAnimationFrame(loop);
-}
 
+  setTimeout(loop, 1000);
+}
 // Initialization function
 async function init() {
   loggedInEmail = await fetchUserEmail();
@@ -211,7 +239,6 @@ async function init() {
     AREWELOGEDIN = true;
   }
   initEventListeners();
-  console.log("INITING");
   await initGroups();
   loop();
   updateDataList();

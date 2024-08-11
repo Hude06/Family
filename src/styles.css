@@ -153,3 +153,7 @@ li {
   cursor: pointer;
   margin-top: 10px;
 }
+.groups {
+  display: flex;
+  flex-direction: column;
+}

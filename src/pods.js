@@ -10,6 +10,10 @@ const JoinPod = document.getElementById("JoinPod");
 const podsDIV = document.getElementById("podList");
 let pods = [];
 let user = await fetchUserEmail();
+let currentPod = null;
+export function getCurretPod() {
+  return currentPod;
+}
 fetchData().then((data) => {
   if (user !== null) {
     console.log("POds", data);
@@ -41,7 +45,8 @@ class Pod {
 }
 function podLissener(id) {
   document.getElementById(id).addEventListener("click", async () => {
-    console.log(id);
+    currentPod = await getPodByID(id);
+    console.log("Current Pod is ", getCurretPod());
   });
 }
 async function insertPod(id, pod, users) {
@@ -55,7 +60,7 @@ async function insertPod(id, pod, users) {
     console.error("Error inserting message:", error.message);
   }
 }
-function getPodByID(id) {
+export async function getPodByID(id) {
   return fetchData()
     .then((data) => {
       for (let i = 0; i < data.length; i++) {

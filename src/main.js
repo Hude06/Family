@@ -8,6 +8,7 @@ import { encrypt, decrypt } from "./encryption.js";
 import { fetchUserEmail } from "./supabase.js";
 import { getCurretPod as getCurrentPod, getPodByID } from "./pods.js";
 // DOM elements
+let REDIRECTURL = "https://judemakes.dev/family/src/";
 const submitButton = document.getElementById("submit");
 const ul = document.getElementById("dataList");
 const sidebar = document.querySelector(".sidebar");
@@ -213,7 +214,7 @@ async function signInWithGithub() {
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
       provider: "github",
       options: {
-        redirectTo: "http://127.0.0.1:1430",
+        redirectTo: REDIRECTURL,
       },
     });
 

@@ -4,7 +4,7 @@ const supabaseClient = createClient(
   "https://zzalsobevusrwlgyahaj.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6YWxzb2JldnVzcndsZ3lhaGFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE5MjUyNTksImV4cCI6MjAzNzUwMTI1OX0.H8hlotvviqMWAhUs8nMju1s81uMbffzPYwHC_G-LJoM",
 );
-
+import { encrypt, decrypt } from "./encryption.js";
 // DOM elements
 const submitButton = document.getElementById("submit");
 const ul = document.getElementById("dataList");
@@ -25,6 +25,7 @@ setTimeout(() => {
   }
 }, 1000);
 
+// Call the function to create and insert the elements
 function removeBUTTON(id) {
   console.log(id);
   document.getElementById(id).remove();
@@ -108,19 +109,20 @@ async function updateDataList() {
       .filter((item) => item.group.toLowerCase() === currentGroup.toLowerCase())
       .forEach((item) => addListItem(item.message, item.user));
 
-    setTimeout(updateDataList, 200);
+    setTimeout(updateDataList, 1000);
   } catch (error) {
     console.error("Error updating data list:", error.message);
   }
 }
-
 // Add a new list item to the data list
 function addListItem(text, user) {
+  let decrypted = decrypt(text, 3);
   const div = document.createElement("div");
   div.className = "message";
+  div.id = Date.now();
   div.innerHTML = `
     <li class="user">${user}</li>
-    <li>${text}</li>
+    <li>${decrypted}</li>
   `;
   ul.appendChild(div);
 }
@@ -132,6 +134,7 @@ async function handleSubmit(event) {
   if (isTexting && loggedInEmail) {
     event.preventDefault();
     const message = document.getElementById("message").value;
+    document.getElementById("message").value = "";
     await insertMessage("messages", message, loggedInEmail);
   } else {
     alert("You are not logged in or texting is disabled");
@@ -140,10 +143,11 @@ async function handleSubmit(event) {
 
 // Insert a new message into the database
 async function insertMessage(group, message, user) {
+  let encryted = encrypt(message, 3);
   try {
     const { error } = await supabaseClient
       .from(group)
-      .insert({ message, user, group: currentGroup });
+      .insert({ message: encryted, user, group: currentGroup });
 
     if (error) throw error;
   } catch (error) {

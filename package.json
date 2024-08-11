@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "dev": "http-server ./src -p 1432"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1"

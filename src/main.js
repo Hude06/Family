@@ -5,7 +5,9 @@ const supabaseClient = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6YWxzb2JldnVzcndsZ3lhaGFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE5MjUyNTksImV4cCI6MjAzNzUwMTI1OX0.H8hlotvviqMWAhUs8nMju1s81uMbffzPYwHC_G-LJoM",
 );
 import { encrypt, decrypt } from "./encryption.js";
+import { fetchUserEmail } from "./supabase.js";
 // DOM elements
+console.log("Window is", window.location.href);
 const submitButton = document.getElementById("submit");
 const ul = document.getElementById("dataList");
 const sidebar = document.querySelector(".sidebar");
@@ -16,19 +18,15 @@ const trash = document.getElementById("trashcan");
 let currentGroup = "home";
 let isTexting = true;
 let loggedInEmail = "";
+let AREWELOGEDIN = null;
 let all_groups = [];
-const { data: userData, error: userError } =
-  await supabaseClient.auth.getUser();
-setTimeout(() => {
-  if (userData.user !== null) {
-    loggedInEmail = userData.user.email || "";
-  }
-}, 1000);
 
 // Call the function to create and insert the elements
 function removeBUTTON(id) {
-  console.log(id);
-  document.getElementById(id).remove();
+  if (AREWELOGEDIN) {
+    console.log(id);
+    document.getElementById(id).remove();
+  }
 }
 function initEventListeners() {
   loginButton.addEventListener(
@@ -53,26 +51,28 @@ function initEventListeners() {
   });
 
   newGroupButton.addEventListener("click", async () => {
-    const groupName = prompt("Enter the group name");
-    if (groupName === null || groupName.trim() === "") {
-      alert("Group name cannot be empty");
-      return;
-    }
+    if (AREWELOGEDIN) {
+      const groupName = prompt("Enter the group name");
+      if (groupName === null || groupName.trim() === "") {
+        alert("Group name cannot be empty");
+        return;
+      }
 
-    if (all_groups.includes(groupName)) {
-      alert("Group already exists");
-      return;
-    }
+      if (all_groups.includes(groupName)) {
+        alert("Group already exists");
+        return;
+      }
 
-    // Create and add new group button only if group does not exist
-    const newGroupButton = document.createElement("button");
-    newGroupButton.textContent = groupName;
-    newGroupButton.className = "group";
-    newGroupButton.id = groupName;
-    sidebar.appendChild(newGroupButton);
-    all_groups.push(groupName);
-    addGroupButtonEventListener(newGroupButton);
-    console.log(all_groups);
+      // Create and add new group button only if group does not exist
+      const newGroupButton = document.createElement("button");
+      newGroupButton.textContent = groupName;
+      newGroupButton.className = "group";
+      newGroupButton.id = groupName;
+      sidebar.appendChild(newGroupButton);
+      all_groups.push(groupName);
+      addGroupButtonEventListener(newGroupButton);
+      console.log(all_groups);
+    }
   });
 }
 
@@ -85,31 +85,37 @@ function addGroupButtonEventListener(button) {
 
 // Initialize groups in the sidebar
 async function initGroups() {
-  const groups = await fetchData();
-  groups.forEach((group) => {
-    if (!all_groups.includes(group.group)) {
-      const groupButton = document.createElement("button");
-      groupButton.textContent = group.group;
-      groupButton.className = "group";
-      groupButton.id = group.group;
-      sidebar.appendChild(groupButton);
-      addGroupButtonEventListener(groupButton);
-      all_groups.push(group.group);
-      console.log(all_groups);
-    }
-  });
+  if (AREWELOGEDIN) {
+    const groups = await fetchData();
+    groups.forEach((group) => {
+      if (!all_groups.includes(group.group)) {
+        const groupButton = document.createElement("button");
+        groupButton.textContent = group.group;
+        groupButton.className = "group";
+        groupButton.id = group.group;
+        sidebar.appendChild(groupButton);
+        addGroupButtonEventListener(groupButton);
+        all_groups.push(group.group);
+        console.log(all_groups);
+      }
+    });
+  }
 }
 
 // Fetch and display data in the list
 async function updateDataList() {
   try {
-    const data = await fetchData();
-    ul.innerHTML = "";
-    data
-      .filter((item) => item.group.toLowerCase() === currentGroup.toLowerCase())
-      .forEach((item) => addListItem(item.message, item.user));
+    if (AREWELOGEDIN) {
+      const data = await fetchData();
+      ul.innerHTML = "";
+      data
+        .filter(
+          (item) => item.group.toLowerCase() === currentGroup.toLowerCase(),
+        )
+        .forEach((item) => addListItem(item.message, item.user));
 
-    setTimeout(updateDataList, 1000);
+      setTimeout(updateDataList, 1000);
+    }
   } catch (error) {
     console.error("Error updating data list:", error.message);
   }
@@ -130,8 +136,7 @@ function addListItem(text, user) {
 // Handle message submission
 async function handleSubmit(event) {
   console.log("submit button clicked");
-  console.log(loggedInEmail);
-  if (isTexting && loggedInEmail) {
+  if (isTexting && AREWELOGEDIN) {
     event.preventDefault();
     const message = document.getElementById("message").value;
     document.getElementById("message").value = "";
@@ -172,7 +177,7 @@ async function signInWithGithub() {
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
       provider: "github",
       options: {
-        redirectTo: "http://127.0.0.1:5500/src",
+        redirectTo: "http://127.0.0.1:1430",
       },
     });
 
@@ -180,10 +185,6 @@ async function signInWithGithub() {
 
     // Retrieve user information
     if (userError) throw userError;
-
-    loggedInEmail = userData.user.email || "";
-    console.log("Logged in as:", loggedInEmail);
-    document.getElementById("logedin").innerHTML = loggedInEmail;
   } catch (error) {
     console.error("Authentication error:", error.message);
   }
@@ -196,8 +197,8 @@ function updateDisplay() {
 // Function to loop for periodic updates
 
 function loop() {
-  if (loggedInEmail !== "") {
-    document.getElementById("logedin").innerHTML = userData.user.email;
+  if (AREWELOGEDIN) {
+    document.getElementById("logedin").innerHTML = loggedInEmail;
   }
   updateDisplay();
   requestAnimationFrame(loop);
@@ -205,6 +206,10 @@ function loop() {
 
 // Initialization function
 async function init() {
+  loggedInEmail = await fetchUserEmail();
+  if (loggedInEmail !== null) {
+    AREWELOGEDIN = true;
+  }
   initEventListeners();
   console.log("INITING");
   await initGroups();

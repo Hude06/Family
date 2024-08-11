@@ -3,31 +3,31 @@ const supabaseClient = createClient(
   "https://zzalsobevusrwlgyahaj.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6YWxzb2JldnVzcndsZ3lhaGFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE5MjUyNTksImV4cCI6MjAzNzUwMTI1OX0.H8hlotvviqMWAhUs8nMju1s81uMbffzPYwHC_G-LJoM",
 );
+import { fetchUserEmail } from "./supabase.js";
+
 const newPodButton = document.getElementById("NewPod");
 const JoinPod = document.getElementById("JoinPod");
 const podsDIV = document.getElementById("podList");
 let pods = [];
-let user = undefined;
-const { data: userData, error: userError } =
-  await supabaseClient.auth.getUser();
-console.log(userData);
-setTimeout(() => {
-  if (userData.user !== null) {
-    user = userData.user.email || "";
-    fetchData().then((data) => {
-      console.log("POds", data);
-      for (let i = 0; i < data.length; i++) {
-        for (let u = 0; u < data[i].users.length; u++) {
-          console.log("Test", data[i].users[u]);
+let user = await fetchUserEmail();
+fetchData().then((data) => {
+  if (user !== null) {
+    console.log("POds", data);
+    for (let i = 0; i < data.length; i++) {
+      for (let u = 0; u < data[i].users.length; u++) {
+        console.log("Test", data[i].users[u]);
+        if (data[i].users[u] !== null) {
           if (data[i].users[u].includes(user)) {
+            console.log("includes");
             pods.push(new Pod(data[i].pod, data[i].id));
           }
         }
       }
-      renderPods();
-    });
+    }
+    renderPods();
   }
-}, 1000);
+});
+
 class Pod {
   constructor(name, id) {
     this.name = name;
@@ -100,32 +100,36 @@ async function updateRow(id, name, user) {
 }
 function buttons() {
   newPodButton.addEventListener("click", async () => {
-    const podName = prompt("Enter the name of the new pod");
-    if (podName) {
-      // Check if a name was entered
-      const newPod = new Pod(podName);
-      console.log(newPod.name, newPod.id);
-      pods.push(newPod);
-      insertPod(newPod.id, newPod.name, newPod.users);
-      renderPods();
+    if (user !== null) {
+      const podName = prompt("Enter the name of the new pod");
+      if (podName) {
+        // Check if a name was entered
+        const newPod = new Pod(podName);
+        console.log(newPod.name, newPod.id);
+        pods.push(newPod);
+        insertPod(newPod.id, newPod.name, newPod.users);
+        renderPods();
+      }
     }
   });
   JoinPod.addEventListener("click", async () => {
-    const inviteCode = prompt("Invite code???");
-    try {
-      const pod = await getPodByID(inviteCode);
-      if (pod !== null) {
-        pod.users.push(user);
-        pods.push(new Pod(pod.pod, pod.id));
-        renderPods();
-        updateRow(pod.id, pod.pod, pod.users);
-        console.log(pods);
+    if (user !== null) {
+      const inviteCode = prompt("Invite code???");
+      try {
+        const pod = await getPodByID(inviteCode);
+        if (pod !== null) {
+          pod.users.push(user);
+          pods.push(new Pod(pod.pod, pod.id));
+          renderPods();
+          updateRow(pod.id, pod.pod, pod.users);
+          console.log(pods);
+        }
+      } catch (error) {
+        console.error("Error retrieving pod:", error);
       }
-    } catch (error) {
-      console.error("Error retrieving pod:", error);
-    }
 
-    console.log(inviteCode);
+      console.log(inviteCode);
+    }
   });
 }
 

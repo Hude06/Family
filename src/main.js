@@ -76,10 +76,15 @@ function addGroupButtonEventListener(button) {
 }
 
 // Initialize groups in the sidebar
+let savedPod = null;
 async function initGroups() {
-  document.getElementById("groups").innerHTML = "";
-  all_groups = [];
-
+  if (savedPod !== null) {
+    if (savedPod.id !== (await getCurrentPod().id)) {
+      document.getElementById("groups").innerHTML = "";
+      console.log("Pod changed");
+      all_groups = [];
+    }
+  }
   if (!AREWELOGEDIN) {
     // Schedule the function to run again after 1 second if not logged in
     setTimeout(initGroups, 1000);
@@ -115,7 +120,8 @@ async function initGroups() {
   }
 
   // Schedule the function to run again after 1 second
-  setTimeout(initGroups, 200);
+  savedPod = getCurrentPod();
+  setTimeout(initGroups, 1000);
 }
 
 // Fetch and display data in the list
